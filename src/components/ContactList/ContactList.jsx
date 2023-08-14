@@ -1,13 +1,30 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import {
   ContactListStyled,
   ContactListItem,
   ContactName,
   DeleteButton,
 } from './ContactListStyles';
+import { useDispatch, useSelector } from 'react-redux';
+import { deleteContact, getContacts } from 'redux/contactsSlice';
 
-const ContactList = ({ visibleContacts, onBtnClick }) => {
+const ContactList = () => {
+  const contacts = useSelector(getContacts);
+  const filter = useSelector(state => state.filter);
+  const dispatch = useDispatch();
+
+  const handleDeleteContact = name => {
+    dispatch(deleteContact(name));
+  };
+
+  const getVisibleContacts = () => {
+    return contacts.filter(contact =>
+      contact.name.toLowerCase().includes(filter.toLowerCase())
+    );
+  };
+
+  const visibleContacts = getVisibleContacts();
+
   return (
     <ContactListStyled>
       {visibleContacts.map(contact => {
@@ -18,7 +35,7 @@ const ContactList = ({ visibleContacts, onBtnClick }) => {
             </span>
             <DeleteButton
               type="button"
-              onClick={() => onBtnClick(contact.name)}
+              onClick={() => handleDeleteContact(contact.name)}
             >
               Delete
             </DeleteButton>
@@ -27,17 +44,6 @@ const ContactList = ({ visibleContacts, onBtnClick }) => {
       })}
     </ContactListStyled>
   );
-};
-
-ContactList.propTypes = {
-  visibleContacts: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-      number: PropTypes.string.isRequired,
-    })
-  ).isRequired,
-  onBtnClick: PropTypes.func.isRequired,
 };
 
 export default ContactList;
